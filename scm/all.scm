@@ -1,0 +1,6 @@
+(load "stdlib.scm")
+(load "read.scm")
+(load "types.scm")
+(load "eval.scm")
+(load "macroexpand.scm")
+(load "repl.scm")

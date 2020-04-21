@@ -1,0 +1,92 @@
+(define-macro (or . exps)
+  (define (loop exps)
+    (if (null? exps)
+      #f
+      ((lambda (sym)
+	 `(let ((,sym ,(car exps))) 
+	    (if ,sym
+	      ,sym
+	      ,(loop (cdr exps)))))
+       (gensym 'or))))
+  (loop exps))
+
+(define-macro (and . exps)
+  (define (loop exps)
+    (if (null? (cdr exps))
+      (car exps)
+      `(if ,(car exps)
+	 ,(loop (cdr exps))
+	 #f)))
+  (if (null? exps)
+    #t
+    (loop exps)))
+
+(define-macro (let . args)
+  ((lambda (head rest)
+     (if (symbol? head)
+       ((lambda (bindings body)
+	  `((lambda ()
+	      (begin
+		(define (,head ,@(map car bindings))
+		  ,@body)
+		(,head ,@(map cadr bindings))))))
+	(car rest) (cdr rest))
+       `((lambda ,(map car head)
+	   ,@rest)
+	 ,@(map cadr head))))
+   (car args) (cdr args)))
+
+(define-macro (let* bindings . body)
+  (define (loop bindings)
+    (if (null? bindings)
+      `(begin ,@body)
+      `((lambda (,(caar bindings))
+	  ,(loop (cdr bindings)))
+	,(cadar bindings))))
+  (loop bindings))
+
+(define-macro (cond . cases)
+  (define (loop cases)
+    (if (null? cases)
+      #f
+      ((lambda (condition)
+	 (if (eqv? condition 'else)
+	   (cadar cases)
+	   `(if ,condition
+	      ,(cadar cases)
+	      ,(loop (cdr cases)))))
+       (caar cases))))
+  (loop cases))
+
+(define-macro (-> . body)
+  (define (loop acc body)
+    (if (null? body)
+      acc
+      (loop
+       ((lambda (expression)
+          `(,(car expression) ,acc ,@(cdr expression)))
+        (car body))
+       (cdr body))))
+  (loop (car body) (cdr body)))
+
+(define-macro (let? bindings . body)
+  (define (loop bindings)
+    (if (null? bindings)
+      `(begin ,@body)
+      `(match ,(cadar bindings)
+         (,(caar bindings) ,(loop (cdr bindings)))
+         (,',_ (raise (to-string "let? did not match " ',(caar bindings)))))))
+  (loop bindings))
+
+(define __definet-level 0)
+(define-macro (definet sig . body)
+  ((lambda (result-sym)
+     (if (if (pair? sig) (symbol? (car sig)))
+       `(define ,sig
+          (set! __definet-level (+ __definet-level 1))
+          (display (string-times "> "  __definet-level)) (display ',(car sig)) (newline)
+          (let ((,result-sym (begin ,@body)))
+            (set! __definet-level (- __definet-level 1))
+            ,result-sym))
+       (raise (string-append "definet must be used to define a function " (call (java.lang.Object sig) toString)))))
+   (gensym 'result)))

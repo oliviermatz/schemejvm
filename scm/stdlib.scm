@@ -1,0 +1,5 @@
+(load "stdlib/01-prelude-premacro.scm")
+(load "stdlib/02-prelude-macro.scm")
+(load "stdlib/03-prelude.scm")
+(load "stdlib/04-match.scm")
+(load "stdlib/05-data-structures.scm")

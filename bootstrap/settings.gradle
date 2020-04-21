@@ -1,0 +1,4 @@
+rootProject.name = 'schemejvm'
+include 'schemejvm-bootstrap'
+include 'schemejvm-runtime'
+
