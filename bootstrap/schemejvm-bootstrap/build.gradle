@@ -12,10 +12,10 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.12.4'
-    compile 'org.scala-lang.modules:scala-parser-combinators_2.12:1.1.1'
-    compile 'com.github.krukow:clj-ds:0.0.4'
+    implementation 'org.scala-lang:scala-library:2.12.4'
+    implementation 'org.scala-lang.modules:scala-parser-combinators_2.12:1.1.1'
+    implementation 'com.github.krukow:clj-ds:0.0.4'
     implementation project(":schemejvm-runtime")
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.scalatest:scalatest_2.12:3.0.5'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.scalatest:scalatest_2.12:3.0.5'
 }
